@@ -12,6 +12,13 @@ var services = {
       method: 'post',
       path: '/login'
     }]
+  },
+  tasks: {
+    domain: 'localhost:8000',
+    endpoints: [{
+      method: 'get',
+      path: ''
+    }]
   }
 };
 
