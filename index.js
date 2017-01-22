@@ -22,6 +22,10 @@ var services = {
       method: 'get',
       path: '/my',
       roles: ['user', 'admin']
+    }, {
+      method: 'post',
+      path: '/my',
+      roles: ['user', 'admin']
     }]
   }
 };
