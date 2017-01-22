@@ -17,6 +17,10 @@ var services = {
     endpoints: [{
       method: 'get',
       path: '',
+      roles: ['admin']
+    }, {
+      method: 'get',
+      path: '/my',
       roles: ['user', 'admin']
     }]
   }
@@ -37,7 +41,13 @@ function registerEndpoint(serviceName, domain, endpoint) {
 
         var chain = request[endpoint.method](domain + '/' + serviceName + endpoint.path);
         if (_.includes(['post', 'put', 'patch'], endpoint.method) && req.body) {
-          chain = chain.send(JSON.parse(req.body));
+          var body = JSON.parse(req.body);
+          if (decoded.data.id) {
+            body.userId = decoded.data.id;
+          }
+          chain = chain.send(body);
+        } else if (decoded.data.id) {
+          chain = chain.query({ userId: decoded.data.id })
         }
         chain.end(function(error, result) {
           if (error) {
