@@ -31,6 +31,10 @@ function registerEndpoint(serviceName, domain, endpoint) {
       if (error) {
         res.send(401);
       } else if (decoded) {
+        if (decoded.data && !_.includes(endpoint.roles, decoded.data.role)) {
+          res.send(403);
+        }
+
         var chain = request[endpoint.method](domain + '/' + serviceName + endpoint.path);
         if (_.includes(['post', 'put', 'patch'], endpoint.method) && req.body) {
           chain = chain.send(JSON.parse(req.body));
@@ -69,7 +73,10 @@ function login(req, res, next) {
       } else if (result) {
         var json = JSON.parse(result.text);
         json.token = jwt.sign({
-          data: json.id
+          data: {
+            id: json.id,
+            role: json.role
+          }
         }, 'secret', { expiresIn: 60 * 60 });
         res.send(result.status, json);
       }
