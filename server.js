@@ -4,6 +4,9 @@ var request = require('superagent');
 var jwt = require('jsonwebtoken');
 var cors = require('cors');
 
+const USERS_SERVICE_BASE_URL = 'http://localhost:9292/users';
+const TASKS_SERVICE_BASE_URL = 'http://localhost:8000/tasks';
+
 var user;
 
 function proxy(url, method, data) {
@@ -49,7 +52,7 @@ function requireAuthorization(req, res, next) {
 }
 
 function login(req, res) {
-  proxy('http://localhost:9292/users/login', 'post', req.body)
+  proxy(USERS_SERVICE_BASE_URL + '/login', 'post', req.body)
     .then(function(result) {
       var json = result.json;
       json.token = jwt.sign({
@@ -78,8 +81,8 @@ function combineTasksAndUsers(tasksAndUsers) {
 
 function getTasks(req, res) {
   combineRequests(
-    [{ url: 'http://localhost:8000/tasks', method: 'get' },
-    { url: 'http://localhost:9292/users', method: 'get'}],
+    [{ url: TASKS_SERVICE_BASE_URL, method: 'get' },
+    { url: USERS_SERVICE_BASE_URL, method: 'get'}],
     combineTasksAndUsers
   ).then(function(result) {
     res.send(200, result);
@@ -90,8 +93,8 @@ function getTasks(req, res) {
 
 function getMyTasks(req, res) {
   combineRequests(
-    [{ url: 'http://localhost:8000/tasks?userId=' + user.id, method: 'get' },
-    { url: 'http://localhost:9292/users', method: 'get'}],
+    [{ url: TASKS_SERVICE_BASE_URL + '?userId=' + user.id, method: 'get' },
+    { url: USERS_SERVICE_BASE_URL, method: 'get'}],
     combineTasksAndUsers
   ).then(function(result) {
     res.send(200, result);
